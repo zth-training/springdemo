@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="liquibase" class="liquibase.integration.spring.SpringLiquibase">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="changeLog" value="classpath:db-changelog.xml"/>
+	</bean>
+
+	<bean id="serverConfig" class="com.avaje.ebean.config.ServerConfig">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="name" value="ebeanServer"/>
+		<property name="ddlGenerate" value="false"/>
+		<property name="ddlRun" value="false"/>
+		<property name="defaultServer" value="true"/>
+		<property name="packages" value="hu.zerotohero.model"/>
+	</bean>
+
+	<bean id="countrydao" class="hu.zerotohero.dao.CountryDao"/>
+
+	<bean id="countryCreator" class="hu.zerotohero.CountryCreator">
+		<constructor-arg ref="countrydao"/>
+	</bean>
+
+	<bean id="ebean" class="com.avaje.ebean.springsupport.factory.EbeanServerFactoryBean" depends-on="liquibase">
+		<property name="serverConfig" ref="serverConfig"/>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		  destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost/test"/>
+		<property name="username" value="test"/>
+		<property name="password" value="test"/>
+	</bean>
+
+</beans>
